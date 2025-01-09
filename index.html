@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>So Over / So Back Meter</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .gauge-container {
+            position: relative;
+            padding: 40px;
+            background-color: #f0f0f0;
+            border-radius: 20px;
+        }
+        .gauge {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            margin: 20px 0;
+        }
+        .gauge-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right,
+                #ff6b6b 0%,
+                #ff6b6b 50%,
+                #4ecdc4 50%,
+                #4ecdc4 100%
+            );
+            border-radius: 400px 400px 0 0;
+        }
+        .gauge-center {
+            position: absolute;
+            width: 100px;
+            height: 50px;
+            background: #333;
+            border-radius: 50px 50px 0 0;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        .needle {
+            position: absolute;
+            width: 8px;
+            height: 370px;
+            background: #333;
+            bottom: 0;
+            left: 50%;
+            transform-origin: center bottom;
+            transform: translateX(-50%) rotate(0deg);
+            bottom: 5px;
+            transition: transform 0.5s ease-out;
+            z-index: 1;
+        }
+        .labels {
+            width: 800px;
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+        .input-container {
+            margin-top: 40px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        input {
+            width: 180px;
+            height: 40px;
+            padding: 5px 15px;
+            font-size: 18px;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 30px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #captureCanvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="gauge-container" id="gaugeContainer">
+        <div class="gauge">
+            <div class="gauge-background"></div>
+            <div class="gauge-center"></div>
+            <div class="needle"></div>
+        </div>
+        <div class="labels">
+            <span>it's so over</span>
+            <span>we are so back</span>
+        </div>
+    </div>
+    <div class="input-container">
+        <input type="number" id="valueInput" min="0" max="100" value="50">
+        <button onclick="updateNeedle()">Update</button>
+        <button onclick="downloadGauge()">Download Image</button>
+    </div>
+    <canvas id="captureCanvas"></canvas>
+
+    <script>
+        function updateNeedle() {
+            const value = document.getElementById('valueInput').value;
+            const needle = document.querySelector('.needle');
+            const rotation = (value - 50) * 1.8; // Convert 0-100 to -90 to 90 degrees
+            needle.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+        }
+
+        function downloadGauge() {
+            // Create canvas and context
+            const canvas = document.getElementById('captureCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Set canvas size to match gauge size
+            const gaugeContainer = document.getElementById('gaugeContainer');
+            canvas.width = gaugeContainer.offsetWidth;
+            canvas.height = gaugeContainer.offsetHeight;
+
+            // Create a data URL from the gauge container
+            html2canvas(gaugeContainer).then(canvas => {
+                // Create temporary link
+                const link = document.createElement('a');
+                link.download = 'gauge.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        // Initialize needle position
+        updateNeedle();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>

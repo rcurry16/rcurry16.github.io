@@ -120,11 +120,89 @@
     <canvas id="captureCanvas"></canvas>
 
     <script>
-        function updateNeedle() {
-            const value = document.getElementById('valueInput').value;
+        function updateNeedle(value) {
+            // If no value provided, get it from the input
+            if (value === undefined) {
+                value = parseInt(document.getElementById('valueInput').value);
+            }
             const needle = document.querySelector('.needle');
             const rotation = (value - 50) * 1.8; // Convert 0-100 to -90 to 90 degrees
             needle.style.transform = `translateX(-50%) rotate(${rotation}deg)`;
+        }
+
+        function initDragHandlers() {
+            const gauge = document.querySelector('.gauge');
+            let isDragging = false;
+            
+            // Start drag on mouse down
+            gauge.addEventListener('mousedown', (event) => {
+                isDragging = true;
+                updateNeedlePosition(event);
+                event.preventDefault(); // Prevent text selection
+            });
+            
+            // Continue drag on mouse move
+            document.addEventListener('mousemove', (event) => {
+                if (isDragging) {
+                    updateNeedlePosition(event);
+                }
+            });
+            
+            // End drag on mouse up
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+            
+            // End drag if mouse leaves the document
+            document.addEventListener('mouseleave', () => {
+                isDragging = false;
+            });
+        }
+
+        function updateNeedlePosition(event) {
+            // For X coordinate
+            let mouseX = event.clientX;
+            // For Y coordinate 
+            let mouseY = event.clientY;
+
+            const gaugeRect = document.querySelector('.gauge').getBoundingClientRect();
+            const centerX = gaugeRect.left + gaugeRect.width / 2;
+            const centerY = gaugeRect.bottom;
+            const p1 = { x: centerX, y: centerY };
+            
+            // Calculate distance from center point
+            const dx = mouseX - centerX;
+            const dy = mouseY - centerY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Calculate angle in degrees (-180 to 0 in the semicircle)
+            var angleDeg = Math.atan2(mouseY - p1.y, mouseX - p1.x) * 180 / Math.PI;
+            
+            // Check if mouse is above the horizontal line (y < centerY)
+            // and within a reasonable distance from the center
+            const maxRadius = gaugeRect.width / 2 * 1.2; // Allow some leeway beyond gauge width
+            
+            if (mouseY >= centerY || distance > maxRadius) {
+                // Mouse is outside the gauge's semicircle - don't update
+                return;
+            }
+            
+            // Convert angle to 0-100 scale
+            // -180 degrees maps to 0, 0 degrees maps to 100
+            var value = ((angleDeg + 180) / 180) * 100;
+            
+            // Add buffer zones at the edges (0.01% at each end)
+            if (value < 0.01) value = 0;
+            if (value > 99.99) value = 100;
+            
+            // Clamp the value between 0 and 100
+            value = Math.max(0, Math.min(100, value));
+            
+            // Update the needle with the new value
+            updateNeedle(Math.round(value));
+            
+            // Update the input field to match
+            document.getElementById('valueInput').value = Math.round(value);
         }
 
         function downloadGauge() {
@@ -146,6 +224,8 @@
                 link.click();
             });
         }
+
+        initDragHandlers();
 
         // Initialize needle position
         updateNeedle();

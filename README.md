@@ -1,6 +1,6 @@
-# It's So Over / We're So Back Meter
+# It's so over / We are so back Meter
 
-A silly tool inspired by [Jet Lag: The Game](https://nebula.tv/jetlag). An interactive gauge for the "It's So Over" and "We're So Back" phrases occasionally used in the show.
+A silly tool inspired by [Jet Lag: The Game](https://nebula.tv/jetlag). An interactive gauge for the "It's so over" and "We are so back" phrases occasionally used in the show.
 
 ## Features
 
